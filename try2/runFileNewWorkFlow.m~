@@ -86,7 +86,7 @@ end
 %%
 figure(2);
 for tt = 1:500:length(tlist)+1
-    pdeplot(p,e,t,'XYData',u2(:,tt),'ZData',u2(:,tt),'ColorMap','jet')
+    pdeplot(p,e,t,'XYData',u(147:292,tt),'ZData',u(147:292,tt),'ColorMap','jet')
     axis([-1 1 -1 1]) % use fixed axis
     title(['Step ' num2str(tt)]);
     drawnow
