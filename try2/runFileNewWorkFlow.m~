@@ -63,7 +63,7 @@ setInitialConditions(model,[rand(2,1)],'Edge',4);
 %% Defining coefficients
 % For PDE in the form:- d*du/dt - c*d2u/dx2 + au = f 
 
-tlist = linspace(0,1,500000);
+tlist = linspace(0,1,100000);
 
 % coefficients.
 diffusionConstants = [0.04 0.4];
