@@ -1,4 +1,4 @@
-%%
+%
 % solving activator-inhibitor model using parabolic function.
 %% Model Equations ----------
 % du1/dt - D1*d2u1/dx2 = ((rho*u1^2 + rho1)/u2 -kd*u1; Activator
@@ -7,7 +7,7 @@
 % get geometry.
 model = createpde(2);
 
-%draw a geometry and export it then run
+% draw a geometry and export it then run
 % pdecirc(0,0,5); %draw the circle radius 5
 % %run the export from the gui
 % geo = decsg(gd,sf,ns); %convert the exported variables
@@ -34,10 +34,18 @@ xlim([-6 6]);
 axis equal
 %%
 % boundary conditions.
-% applyBoundaryCondition(model,'dirichlet','Edge',1:model.Geometry.NumEdges,...
-%     'u',[3, 0.1],'EquationIndex',[1,2]);
-applyBoundaryCondition(model,'neumann','Edge',1:model.Geometry.NumEdges,...
-    'q',[0, 0],'g',[0 0]);
+
+%NOTE: seems you need gto clear the model before changing and reapplying boundary
+%conditions, otherwise they don't get overwritten. 
+
+%Direchlet boundary condition - fixed value at boundary
+%
+applyBoundaryCondition(model,'dirichlet','Edge',1:model.Geometry.NumEdges,...
+    'u',[3, 0.6],'EquationIndex',[1,2]);
+
+%Neuman boundary condition - zero flux at boundary. 
+% applyBoundaryCondition(model,'neumann','Edge',1:model.Geometry.NumEdges,...
+%     'q',[0, 0],'g',[0 0]);
 
 %%
 % generate mesh
@@ -93,13 +101,3 @@ for tt = 1:1000:length(tlist)
     pause(.01)
 end
 %%
-u = squeeze(uobj.NodalSolution(:,2,:));
-
-figure(2);
-for tt = 1:100:length(tlist)
-    pdeplot(p,e,t,'XYData',u(:,tt),'ZData',u(:,tt),'ColorMap','jet')
-    axis([-1 1 -1 1]) % use fixed axis
-    title(['Step ' num2str(tt)]);
-    drawnow
-    pause(.1)
-end
