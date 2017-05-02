@@ -1,4 +1,4 @@
-function f = fcfunc_boundaryarea(region,state)
+function f = fcfunc_boundaryarea(region,state,radius_inner)
 
 rho = 0.0015;
 rho1 = 0.0001;
@@ -8,7 +8,7 @@ nr = length(region.x);
 
 r = sqrt(region.x.^2+region.y.^2);
 
-inds = r < 5;
+inds = r < radius_inner;
 
 
 f = zeros(N,nr);

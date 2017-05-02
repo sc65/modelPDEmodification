@@ -42,7 +42,7 @@ applyBoundaryCondition(model,'dirichlet','Edge',1:model.Geometry.NumEdges,...
 
 %%
 % generate mesh
-generateMesh(model,'Hmax',1); %Hmax argument controls the fineness of the mesh
+generateMesh(model,'Hmax',0.8); %Hmax argument controls the fineness of the mesh
 figure
 pdemesh(model);
 %ylim([-1.1 1.1]);
@@ -64,7 +64,7 @@ setInitialConditions(model,@setICs);
 %% Defining coefficients
 % For PDE in the form:- d*du/dt - c*d2u/dx2 + au = f 
 
-tlist = linspace(0,30,300);
+tlist = linspace(0,5000,5001);
 
 % coefficients.
 diffusionConstants = [0.004 0.04];
@@ -86,7 +86,7 @@ uobj = solvepde(model,tlist);
 %u = [u0 u];
 u = squeeze(uobj.NodalSolution(:,1,:));
 figure(1);
-for tt = 1:length(tlist)
+for tt = 1:10:length(tlist)
     pdeplot(p,e,t,'XYData',u(:,tt),'ZData',u(:,tt),'ColorMap','jet')
     axis([-6 6 -6 6]) % use fixed axis
     title(['Step ' num2str(tt)]);
