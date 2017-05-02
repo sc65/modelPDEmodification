@@ -1,4 +1,4 @@
-%%
+%
 % solving activator-inhibitor model using parabolic function.
 %% Model Equations ----------
 % du1/dt - D1*d2u1/dx2 = ((rho*u1^2 + rho1)/u2 -kd*u1; Activator
@@ -7,11 +7,23 @@
 % get geometry.
 model = createpde(2);
 
-geometryFromEdges(model,@circleg);
+gd = [1; 0; 0; 15]; % 1st entry indicates it is a circle, next two are x,y of center
+                   % third coordiate is radius.
+                   % see: https://www.mathworks.com/help/pde/ug/create-geometry-at-the-command-line.html   
+
+
+ns = 'C1'; %name of region
+ns = ns'; %needs to be column vector for some reason
+sf = 'C1'; %can combine regions with +/- syntax for names
+geo = decsg(gd,sf,ns); %convert to form for pde solver
+
+geometryFromEdges(model,geo);
+
+%geometryFromEdges(model,@circleg);
 figure;
 pdegplot(model,'EdgeLabels','on')
-ylim([-1 1]);
-xlim([-1 1]);
+ylim([-15 15]);
+xlim([-15 15]);
 axis equal
 %%
 % boundary conditions.
@@ -22,7 +34,7 @@ axis equal
 %Direchlet boundary condition - fixed value at boundary
 %
 applyBoundaryCondition(model,'dirichlet','Edge',1:model.Geometry.NumEdges,...
-    'u',[3, 0.6],'EquationIndex',[1,2]);
+    'u',[0,0],'EquationIndex',[1,2]);
 
 %Neuman boundary condition - zero flux at boundary. 
 % applyBoundaryCondition(model,'neumann','Edge',1:model.Geometry.NumEdges,...
@@ -30,10 +42,10 @@ applyBoundaryCondition(model,'dirichlet','Edge',1:model.Geometry.NumEdges,...
 
 %%
 % generate mesh
-generateMesh(model);
+generateMesh(model,'Hmax',0.8); %Hmax argument controls the fineness of the mesh
 figure
 pdemesh(model);
-ylim([-1.1 1.1]);
+%ylim([-1.1 1.1]);
 axis equal
 xlabel x
 ylabel y
@@ -43,19 +55,20 @@ np = size(p,2);
 N = 2;
 %%
 % initial conditions
-u0 = 1*ones(N*np,1);
-inds = find(p(1,:).^2 + p(2,:).^2 > 0.7 & p(1,:).^2 + p(2,:).^2<1);
-u0([inds],1) = 1.1; %Component1 slightly high near the boundary
-setInitialConditions(model,[1; 1]);
-setInitialConditions(model,[1.2; 1.2],'Edge',1:4);
+setInitialConditions(model,@setICs);
+% setInitialConditions(model,[rand(2,1)],'Edge',1);
+% setInitialConditions(model,[rand(2,1)],'Edge',2);
+% setInitialConditions(model,[rand(2,1)],'Edge',3);
+% setInitialConditions(model,[rand(2,1)],'Edge',4);
+
 %% Defining coefficients
 % For PDE in the form:- d*du/dt - c*d2u/dx2 + au = f 
 
-tlist = linspace(0,1,100000);
+tlist = linspace(0,5000,5001);
 
 % coefficients.
-diffusionConstants = [0.04 0.4];
-kd = 0.0015;
+diffusionConstants = [0.004 0.04];
+kd = 0.015;
 
 c = [diffusionConstants(1); diffusionConstants(2)];
 
@@ -63,7 +76,7 @@ m = [0; 0];
 d = [1; 1];
 a = [kd; kd];
 
-f = @fcfunc;
+f = @fcfunc_boundaryarea;
 % u = parabolic(u0,tlist,model,c,a,f,d);
 specifyCoefficients(model,'m',0,'d',1,'c',c,'a',a,'f',f);
 %%
@@ -71,24 +84,13 @@ uobj = solvepde(model,tlist);
 %%
 % plotting
 %u = [u0 u];
-
-u1 = squeeze(uobj.NodalSolution(:,1,:));
-u2 = squeeze(uobj.NodalSolution(:,2,:));
-
+u = squeeze(uobj.NodalSolution(:,1,:));
 figure(1);
-for tt = 1:500:length(tlist)
-    pdeplot(p,e,t,'XYData',u1(:,tt),'ZData',u1(:,tt),'ColorMap','jet')
-    axis([-1 1 -1 1]) % use fixed axis
+for tt = 1:10:length(tlist)
+    pdeplot(p,e,t,'XYData',u(:,tt),'ZData',u(:,tt),'ColorMap','jet')
+    axis([-6 6 -6 6]) % use fixed axis
     title(['Step ' num2str(tt)]);
     drawnow
-    pause(.1)
+    pause(.01)
 end
 %%
-figure(2);
-for tt = 1:500:length(tlist)+1
-    pdeplot(p,e,t,'XYData',u2(:,tt),'ZData',u2(:,tt),'ColorMap','jet')
-    axis([-1 1 -1 1]) % use fixed axis
-    title(['Step ' num2str(tt)]);
-    drawnow
-    pause(.1)
-end
