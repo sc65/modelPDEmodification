@@ -6,12 +6,12 @@
 NC = 2; % number of components
 radius_outer = 15;
 radius_inner = 5;
-mesh_param = 0.8; %small is finer mesh
+mesh_param = 1; %small is finer mesh
 IChandle = @(x) setICs(x,radius_inner);
 Fhandle = @(x,y) fcfunc_boundaryarea(x,y,radius_inner);
-tlist = linspace(0,5000,501); %time points to evaluate solution
+tlist = linspace(0,1000,101); %time points to evaluate solution
 diffusionConstants = [0.004; 0.04];
-kd = 0.015;
+kd = 0.15;
 
 %%
 model = createpde(NC);
@@ -51,15 +51,19 @@ uobj = solvepde(model,tlist);
 figure; 
 u = squeeze(uobj.NodalSolution(:,1,:));
 u2 = squeeze(uobj.NodalSolution(:,2,:));
-rr = radius_inner;
+rr = 1.3*radius_inner;
+fig = figure; 
 for tt = 1:length(tlist)
     subplot(1,2,1); pdeplot(p,e,t,'XYData',u(:,tt),'ZData',u(:,tt),'ColorMap','jet')
     axis([-rr rr -rr rr]) % use fixed axis
+    axis equal; 
     title(['time ' num2str(tlist(tt))]);
     drawnow;
     subplot(1,2,2); pdeplot(p,e,t,'XYData',u2(:,tt),'ZData',u2(:,tt),'ColorMap','jet')
     axis([-rr rr -rr rr]) % use fixed axis
+    axis equal;
     title(['time ' num2str(tlist(tt))]);
-    pause(.01)
+    M(tt) = getframe(fig);
+    %pause(.01)
 end
 %%

@@ -55,7 +55,8 @@ np = size(p,2);
 N = 2;
 %%
 % initial conditions
-setInitialConditions(model,@setICs);
+ichand = @(x) setICs(x,5);
+setInitialConditions(model,ichand);
 % setInitialConditions(model,[rand(2,1)],'Edge',1);
 % setInitialConditions(model,[rand(2,1)],'Edge',2);
 % setInitialConditions(model,[rand(2,1)],'Edge',3);
@@ -64,11 +65,11 @@ setInitialConditions(model,@setICs);
 %% Defining coefficients
 % For PDE in the form:- d*du/dt - c*d2u/dx2 + au = f 
 
-tlist = linspace(0,5000,5001);
+tlist = linspace(0,2000,2001);
 
 % coefficients.
 diffusionConstants = [0.004 0.04];
-kd = 0.015;
+kd = 0.15;
 
 c = [diffusionConstants(1); diffusionConstants(2)];
 
@@ -76,15 +77,15 @@ m = [0; 0];
 d = [1; 1];
 a = [kd; kd];
 
-f = @fcfunc_boundaryarea;
+f = @(x,y) fcfunc_boundaryarea(x,y,5) ;
 % u = parabolic(u0,tlist,model,c,a,f,d);
 specifyCoefficients(model,'m',0,'d',1,'c',c,'a',a,'f',f);
 %%
-uobj = solvepde(model,tlist);
+uobj2 = solvepde(model,tlist);
 %%
 % plotting
 %u = [u0 u];
-u = squeeze(uobj.NodalSolution(:,1,:));
+u = squeeze(uobj2.NodalSolution(:,1,:));
 figure(1);
 for tt = 1:10:length(tlist)
     pdeplot(p,e,t,'XYData',u(:,tt),'ZData',u(:,tt),'ColorMap','jet')
