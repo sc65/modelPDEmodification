@@ -1,17 +1,26 @@
 %
 % Wrapper for runing PDE models in circular geometry. With inner and outer
-% circle. BC is 0 on outer circle. Components only produced in inner
+% circle. BC is boundval on outer circle. Components only produced in inner
 % circle.
 
 NC = 2; % number of components
 radius_outer = 5;
 radius_inner = 5;
+rho = 0.0015;
+rho1 = 0.0001;
+kd = 0.0015;
+
+As = roots([rho,-rho,0,-rho1]); %solve the polynomial 
+As = As( As == real(As) & real(As) > 0); %only real positive root
+Is = rho/kd*As^2; %steady state inhibitor
+boundval = [As, Is];
+%boundval = [0, 0]; 
+
+diffusionConstants = [0.04; 0.4];
 mesh_param = 1; %small is finer mesh
 IChandle = @(x) setICs(x,radius_inner);
-Fhandle = @(x,y) fcfunc_boundaryarea(x,y,radius_inner);
+Fhandle = @(x,y) fcfunc_boundaryarea(x,y,radius_inner,rho,rho1,0);
 tlist = linspace(0,1000,101); %time points to evaluate solution
-diffusionConstants = [0.004; 0.04];
-kd = 0.15;
 
 %%
 model = createpde(NC);
@@ -28,7 +37,7 @@ geometryFromEdges(model,geo);
 
 %components are 0 at the outer boundary
 applyBoundaryCondition(model,'dirichlet','Edge',1:model.Geometry.NumEdges,...
-    'u',[1, 1],'EquationIndex',[1,2]);
+    'u',boundval,'EquationIndex',[1,2]);
 
 %make the mesh
 generateMesh(model,'Hmax',mesh_param); %Hmax argument controls the fineness of the mesh
