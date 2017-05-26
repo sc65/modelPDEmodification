@@ -1,7 +1,7 @@
 function f = fcfunc_boundaryarea(region,state,radius_inner)
 
 rho = 0.15;
-rho1 = 0.01;
+rho1 = 0.0;
 kd = 0.0;
 N = 2;
 nr = length(region.x);

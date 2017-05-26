@@ -4,8 +4,8 @@ rho1 = 0.01;
 Dvec = [0.004; 0.04];
 kd = 0.15;
 
-As = sqrt(rho/kd);
-Is = rho^2/kd^2+rho1/kd;
+As = 1;
+Is = rho/kd;
 
 fhandle = @(x,t,u,dudx) fcfunc1d(x,t,u,dudx,rho,rho1,Dvec,kd);
 bchandle = @(xl,ul,xr,ur,t) bcs1d(xl,ul,xr,ur,t,As,Is);
