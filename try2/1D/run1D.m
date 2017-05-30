@@ -1,7 +1,7 @@
 m = 0;
 rho = 0.15;
 rho1 = 0.01;
-Dvec = [0.04; 0.04];
+Dvec = [0.004; 0.04];
 kd = 0.15;
 
 As = roots([rho,-rho,0,-rho1]); %solve the polynomial 

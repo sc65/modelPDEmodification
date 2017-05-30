@@ -4,11 +4,11 @@
 % circle.
 
 NC = 2; % number of components
-radius_outer = 5;
-radius_inner = 5;
-rho = 0.0015;
-rho1 = 0.0001;
-kd = 0.0015;
+radius_outer = 10;
+radius_inner = 10;
+rho = 0.15;
+rho1 = 0.01;
+kd = 0.15;
 
 As = roots([rho,-rho,0,-rho1]); %solve the polynomial 
 As = As( As == real(As) & real(As) > 0); %only real positive root
@@ -16,8 +16,8 @@ Is = rho/kd*As^2; %steady state inhibitor
 boundval = [As, Is];
 %boundval = [0, 0]; 
 
-diffusionConstants = [0.04; 0.4];
-mesh_param = 1; %small is finer mesh
+diffusionConstants = [0.004; 0.04];
+mesh_param = 0.5; %small is finer mesh
 IChandle = @(x) setICs(x,radius_inner);
 Fhandle = @(x,y) fcfunc_boundaryarea(x,y,radius_inner,rho,rho1,0);
 tlist = linspace(0,1000,101); %time points to evaluate solution
@@ -66,13 +66,13 @@ for tt = 1:length(tlist)
     subplot(1,2,1); pdeplot(p,e,t,'XYData',u(:,tt),'ZData',u(:,tt),'ColorMap','jet')
     axis([-rr rr -rr rr]) % use fixed axis
     caxis([0.5 2.5]);
-    axis equal;
+    %axis equal;
     title(['time ' num2str(tlist(tt))]);
     drawnow;
     subplot(1,2,2); pdeplot(p,e,t,'XYData',u2(:,tt),'ZData',u2(:,tt),'ColorMap','jet')
     axis([-rr rr -rr rr]) % use fixed axis
     caxis([0.5 2.5]);
-    axis equal;
+    %axis equal;
     title(['time ' num2str(tlist(tt))]);
     M(tt) = getframe(fig);
     %pause(.01)
