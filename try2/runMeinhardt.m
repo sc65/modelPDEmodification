@@ -5,34 +5,45 @@
 
 NC = 2; % number of components
 radius_outer = 30;
-radius_inner = 30;
-rho = [0.01; 0.02];
-kappa = 0;
-kd = [0.01; 0.02];
+radius_inner = 100;
+
+%Meinhardt 1
+rho = [0.1; 0.2];
+kappa = 0.0;
+kd = [0.1; 0.2];
 sigma = [0;0];
-
 As = rho(1)/rho(2)*kd(2)/kd(1); %only for sigma = 0
-
-% As = roots([rho(1)*kd(1)/kd(2),-rho(1),0,-sigma(1)]); %solve the polynomial 
-% As = As( As == real(As) & real(As) > 0); %only real positive root
-% if length(As) > 1
-%     As = max(As);
-% end
 Is = rho(2)/kd(2)*As^2; %steady state inhibitor
+
+%Meinhardt 2
+% rho = [0.01; 0.02];
+% kappa = 0.0;
+% kd = [0.01; 0.0];
+% sigma = [0;0.02];
+% As = sigma(2)*rho(1)/rho(2)/kd(1);
+% Is = sigma(2)/rho(2)/As^2;
+
+diffusionConstants = [0.005; 2];
+
+
 boundval = [As, Is];
 %boundval = [0, 0]; 
 
-diffusionConstants = [0.005; 0.2];
-mesh_param = 1.2; %small is finer mesh
+mesh_param = 1.5; %small is finer mesh
 IChandle = @(x) setICs(x,radius_inner);
 Fhandle = @(x,y) meinhardtFunc(x,y,rho,kappa,sigma,kd);
-tlist = linspace(0,500,1001); %time points to evaluate solution
+tlist = linspace(0,1000,1001); %time points to evaluate solution
 
 %%
 model = createpde(NC);
 
 %make the geometry
 gd = [1; 0; 0; radius_outer]; % 1st entry indicates it is a circle, next two are x,y of center
+
+%square
+gd = [3; 4; 0; 0; radius_outer; radius_outer;...
+    0; radius_outer; radius_outer; 0];
+
 % third coordiate is radius.
 % see: https://www.mathworks.com/help/pde/ug/create-geometry-at-the-command-line.html
 ns = 'C1'; %name of region
@@ -86,10 +97,10 @@ for tt = 1:10:length(tlist)
     %pause(.01)
 end
 %% 1D plot
-xval = -radius_outer:0.1:radius_outer;
-yval = zeros(1,length(xval));
+xval = 0:0.1:radius_outer;
+yval = zeros(1,length(xval))+15;
 figure; 
-for ii = 1:10:length(tlist)
+for ii = 1:5:length(tlist)
 dat1D = interpolateSolution(uobj,xval,yval,1,ii);
 plot(xval,dat1D,'r.-');
 title(['Time ' int2str(tlist(ii))]); xlim([min(xval) max(xval)]); ylim([0, 2*As]);
