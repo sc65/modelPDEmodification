@@ -6,24 +6,27 @@
 NC = 2; % number of components
 radius_outer = 30;
 radius_inner = 30;
-rho = 5;
-rho1 = 0.1;
-kd = [1; 1];
+rho = [0.01; 0.02];
+kappa = 0;
+kd = [0.01; 0.02];
+sigma = [0;0];
 
-As = roots([rho*kd(1)/kd(2),-rho,0,-rho1]); %solve the polynomial 
-As = As( As == real(As) & real(As) > 0); %only real positive root
-if length(As) > 1
-    As = max(As);
-end
-Is = rho/kd(2)*As^2; %steady state inhibitor
+As = rho(1)/rho(2)*kd(2)/kd(1); %only for sigma = 0
+
+% As = roots([rho(1)*kd(1)/kd(2),-rho(1),0,-sigma(1)]); %solve the polynomial 
+% As = As( As == real(As) & real(As) > 0); %only real positive root
+% if length(As) > 1
+%     As = max(As);
+% end
+Is = rho(2)/kd(2)*As^2; %steady state inhibitor
 boundval = [As, Is];
 %boundval = [0, 0]; 
 
-diffusionConstants = 100*[0.01; 0.1];
-mesh_param = 1.3; %small is finer mesh
+diffusionConstants = [0.005; 0.2];
+mesh_param = 1.2; %small is finer mesh
 IChandle = @(x) setICs(x,radius_inner);
-Fhandle = @(x,y) fcfunc_boundaryarea(x,y,radius_inner,rho,rho1,0);
-tlist = linspace(0,50,1001); %time points to evaluate solution
+Fhandle = @(x,y) meinhardtFunc(x,y,rho,kappa,sigma,kd);
+tlist = linspace(0,500,1001); %time points to evaluate solution
 
 %%
 model = createpde(NC);
@@ -55,13 +58,13 @@ c = diffusionConstants;
 
 m = [0; 0]; %second time derivative coefficient
 d = [1; 1]; %first time deriviative coefficient
-a = kd; %degradation terms
+a = [0; 0]; %degradation terms
 specifyCoefficients(model,'m',0,'d',1,'c',c,'a',a,'f',Fhandle);
 %% solve the model
 tic;
 uobj = solvepde(model,tlist);
 toc;
-%% plotting
+%% 2D plotting
 figure;
 u = squeeze(uobj.NodalSolution(:,1,:));
 u2 = squeeze(uobj.NodalSolution(:,2,:));
