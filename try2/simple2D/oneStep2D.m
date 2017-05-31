@@ -1,4 +1,4 @@
-function newvals = oneStep2D(dFunc,Dc,oldvals)
+function newvals = oneStep2D(dFunc,Dc,oldvals,dx,dt)
 
 si = size(oldvals);
 
@@ -11,7 +11,7 @@ NC = si(3);
 diffterms = zeros(si);
 
 for ii = 1:NC
-diffterms(:,:,ii) = Dc(ii)*imfilter(oldvals(:,:,ii),diffFilter,'circular');
+diffterms(:,:,ii) = Dc(ii)*imfilter(oldvals(:,:,ii),diffFilter,'circular')/dx^2;
 end
 
 reactTerms = zeros(si);
@@ -22,7 +22,7 @@ for ii = 1:si(1)
     end
 end
 
-newvals = oldvals+diffterms+reactTerms;
+newvals = oldvals+dt*(diffterms+reactTerms);
         
 
 
